@@ -1,3 +1,13 @@
 .main {
     margin-top: 20px;
 }
+
+.document-link a,
+.document-link a:link,
+.document-link a:visited,
+.document-link a:active {
+    color: gray;
+}
+.document-link a:hover {
+    color: black;
+}

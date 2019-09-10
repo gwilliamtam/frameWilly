@@ -1,5 +1,6 @@
 <?php
 include_once("Messages.php");
+include_once("Document.php");
 include_once("utils.php");
 
 $messages = new Messages();
@@ -15,25 +16,27 @@ $uploadOk = 1;
 $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 // Check if image file is a actual image or fake image
 
-$allowedExts = array("gif", "jpeg", "jpg", "png");
+$doc = new Document();
 $temp = explode(".", $_FILES["inputFile"]["name"]);
 $extension = end($temp);
 $file = $_FILES["inputFile"];
 if ((($file["type"] == "image/gif")
         || ($file["type"] == "image/jpeg")
         || ($file["type"] == "image/jpg")
-        || ($file["type"] == "image/pjpeg")
         || ($file["type"] == "image/x-png")
-        || ($file["type"] == "image/png"))
+        || ($file["type"] == "image/png")
+        || ($file["type"] == "application/pdf")
+    )
     && ($file["size"] < 1000000)
-    && in_array($extension, $allowedExts))
+    && $doc->isValidDocument($extension))
 {
     if ($file["error"] > 0) {
         $messages->add('error', "Return Code: " . $file["error"] );
     } else {
 
         $personName = str_replace(' ', '', $_POST['name']);
-        $newFileName = $personName . "_" . date("YmdHis") . "." .  $extension;
+        $recordName =  $personName . "_" . date("YmdHis");
+        $newFileName = $recordName . "." .  $extension;
 
         if (file_exists($target_dir . $newFileName)) {
             $messages->add('error', $file["tmp_name"] . "->" . $newFileName . " already exists. ");
@@ -42,6 +45,12 @@ if ((($file["type"] == "image/gif")
                 move_uploaded_file($file["tmp_name"], $target_dir . "/" .  $newFileName);
                 $messages->add('message', "Stored in: " . $target_dir . $newFileName);
                 $messages->add('success', "File uploaded correctly!");
+
+                $recordFile = fopen(__DIR__ . '/data/' . $recordName . ".txt", "w") or $messages->add('error', "Could not store data!");
+                fwrite($recordFile, "Name: " . $_POST['name'] . PHP_EOL);
+                fwrite($recordFile, "Instructions: " . $_POST['instructions'] . PHP_EOL);
+                fclose($recordFile);
+                $messages->add('success', "Name and instructions stored correctly!");
             } else {
                 $messages->add('error', "Target directory " . $target_dir . " not found.");
             }
