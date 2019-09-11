@@ -2,12 +2,22 @@
     margin-top: 20px;
 }
 
-.document-link a,
-.document-link a:link,
-.document-link a:visited,
-.document-link a:active {
+a,
+a:link,
+a:visited,
+a:active {
     color: gray;
 }
-.document-link a:hover {
+a:hover {
     color: black;
+}
+
+.nav.nav-tabs {
+    margin-top: 20px;
+}
+
+.files-card {
+    width: 100%;
+    float: left;
+    margin-top: 20px;
 }

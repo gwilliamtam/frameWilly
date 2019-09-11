@@ -20,6 +20,8 @@ $doc = new Document();
 $temp = explode(".", $_FILES["inputFile"]["name"]);
 $extension = end($temp);
 $file = $_FILES["inputFile"];
+$fileSizeLimit = 5000000;
+
 if ((($file["type"] == "image/gif")
         || ($file["type"] == "image/jpeg")
         || ($file["type"] == "image/jpg")
@@ -27,7 +29,7 @@ if ((($file["type"] == "image/gif")
         || ($file["type"] == "image/png")
         || ($file["type"] == "application/pdf")
     )
-    && ($file["size"] < 1000000)
+    && ($file["size"] < $fileSizeLimit)
     && $doc->isValidDocument($extension))
 {
     if ($file["error"] > 0) {
@@ -57,6 +59,10 @@ if ((($file["type"] == "image/gif")
         }
     }
 } else {
+    if ($file["size"] < $fileSizeLimit) {
+
+        $messages->add('error', "Size exceed limit of " . $fileSizeLimit . " bytes");
+    }
     $messages->add('error', "Invalid file");
 }
 session_write_close();

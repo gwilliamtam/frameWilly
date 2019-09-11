@@ -3,8 +3,8 @@
 
 class Document
 {
-    private $validDocuments = ['jpeg', 'jpg', 'jpeg', 'png', 'bmp', 'pdf'];
-    private $imageExtensions = ['jpeg', 'jpg', 'jpeg', 'png', 'bmp'];
+    private $validDocuments = ['gif', 'jpeg', 'jpg', 'jpeg', 'png', 'bmp', 'pdf'];
+    private $imageExtensions = ['gif', 'jpeg', 'jpg', 'jpeg', 'png', 'bmp'];
 
     function isValidDocument($ext)
     {
@@ -25,8 +25,9 @@ class Document
         return false;
     }
 
-    function getExtensions($name)
+    function getExtension($name)
     {
-
+        $extPos = strpos($name, '.');
+        return substr($name, $extPos+1);
     }
 }

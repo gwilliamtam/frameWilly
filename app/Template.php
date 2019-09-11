@@ -14,7 +14,6 @@ class Template
     {
         $_SESSION['time'] = date("Y-m-d H:i:s");
         $messages = new Messages();
-
         echo <<< HTML
 <!doctype html>
 <html lang="en">
@@ -45,10 +44,10 @@ class Template
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="/form">Form <span class="sr-only">(current)</span></a>
+            <li class="nav-item {$this->active('/form')}">
+                <a class="nav-link" href="/form">Form</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item {$this->active('/files')}">
                 <a class="nav-link" href="/files">Files</a>
             </li>
         </ul>
@@ -76,5 +75,13 @@ HTML;
     public function setTitle($title)
     {
         $this->title = $title;
+    }
+
+    private function active($value)
+    {
+        if ($_SERVER['REQUEST_URI'] == $value) {
+            return 'active';
+        }
+        return null;
     }
 }

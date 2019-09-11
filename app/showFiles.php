@@ -11,6 +11,7 @@ $template->header();
 $dir = scandir(__DIR__ . '/uploads');
 
 $files = [];
+$years = [];
 foreach ($dir as $file) {
     if (substr($file, 0, 1) == '.') {
         continue;
@@ -21,20 +22,47 @@ foreach ($dir as $file) {
     $ext = substr($file, $extPos+1);
     $timePos = strpos($file, '_');
     $rawTime = substr($file, $timePos+1, strlen($file) - $timePos - strlen($ext) -2);
+    $year = substr($rawTime, 0, 4);
 
     $files[$rawTime] = [
         'name' => $rawFileName,
         'ext' => $ext
     ];
+    if (!in_array($year, $years)) {
+        $years[] = $year;
+    }
 }
+krsort($files);
+rsort($years);
 
-arsort($files);
+$today = date('Y-m-d');
+$show = 'today';
+if (array_key_exists('show', $_GET)) {
+    $show = $_GET['show'];
+} else {
+    $_GET['show'] = $show;
+}
+$months = ['January', 'February', 'March', 'April', 'May','June', 'July', 'August', 'September', 'November', 'December'];
 
-echo <<< HTML
+?>
+
 <div class="container">
-    <h4>Recent Submits</h4>
-    
-HTML;
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link <?php echo showFilesActive('today') ?>" href="/files?show=today">Today</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <?php echo showFilesActive('month') ?>" href="/files?show=month"><?php echo date('F') ?></a>
+      </li>
+        <?php
+        foreach ($years as $yr) {
+            echo "<li class=\"nav-item\">";
+            echo "  <a class=\"nav-link ".showFilesActive($yr)."\" href=\"/files?show=$yr\">$yr</a>";
+            echo "</li>";
+        }
+        ?>
+    </ul>
+<?php
 
 foreach ($files as $rawTime => $row) {
     $year = substr($rawTime, 0, 4);
@@ -43,6 +71,24 @@ foreach ($files as $rawTime => $row) {
     $hour = substr($rawTime, 8, 2);
     $min = substr($rawTime, 10, 2);
     $sec = substr($rawTime, 12, 2);
+
+    if ($show == 'today') {
+        if ($today != "$year-$month-$day") {
+            continue;
+        }
+    }
+
+    if ($show == 'month') {
+        if ($year != date('Y') || $month != date('m')) {
+            continue;
+        }
+    }
+
+    if (intval($show) >= 2000 && intval($show) <= 3000) {
+        if ($year != $show) {
+            continue;
+        }
+    }
 
     $fileName = __DIR__ . "/data/" . $row['name'] . ".txt";
     $fileHandler = fopen($fileName, 'r');
@@ -53,18 +99,18 @@ foreach ($files as $rawTime => $row) {
     $document = new Document();
 
     echo <<< HTML
-    <div class="card" style="width: 100%; float: left; margin: 20px;">
+    <div class="card files-card">
       <div class="card-body">
 HTML;
     if ($document->isImage($row['ext'])) {
         echo <<< HTML
-        <a href="/image?image=$doc" target="_new" class="document-link float-right">
-            <img class="float-right" src="/image?image=$doc" alt="..." style="height: 100px">
+        <a href="/document?image=$doc" target="_new" class="document-link float-right">
+            <img class="float-right" src="/document?image=$doc" alt="..." style="height: 100px">
         </a>
 HTML;
     } else {
         echo <<< HTML
-        <a href="/doc?doc=$doc" target="_new" class="document-link float-right">
+        <a href="/document?file=$doc" target="_new" class="document-link float-right">
             <i class="far fa-file fa-5x"></i>
         </a>            
 HTML;
@@ -87,3 +133,13 @@ HTML;
 
 
 $template->footer();
+
+function showFilesActive($value)
+{
+    if (array_key_exists('show', $_GET)) {
+        if ($_GET['show'] == $value) {
+            return 'active';
+        }
+    }
+    return null;
+}

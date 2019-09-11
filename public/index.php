@@ -19,15 +19,16 @@ switch ($uri) {
     case '/upload' :
         require $appDir . 'uploadFile.php';
         break;
-    case '/image/a' :
-        require $appDir . 'showFiles.php';
-        break;
     case '/files' :
         require $appDir . 'showFiles.php';
         break;
     default:
-        if (substr($uri, 0, 6) == "/image") {
-            require $appDir . 'showImage.php';
+        if (substr($uri, 0, 7) == "/files?") {
+            require $appDir . 'showFiles.php';
+            break;
+        }
+        if (substr($uri, 0, 9) == "/document") {
+            require $appDir . 'serveDocument.php';
             break;
         }
         require $appDir . 'error.php';
